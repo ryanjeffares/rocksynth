@@ -1,7 +1,8 @@
 #ifndef AUDIO_BUFFER_HPP
 #define AUDIO_BUFFER_HPP
 
-#include "fmt/core.h"
+#include <fmt/core.h>
+
 #include <concepts>
 #include <cstdlib>
 #include <cstring>
