@@ -11,11 +11,11 @@ public:
 
     // Copy + Move constructors
     AudioBuffer(const AudioBuffer& other);
-    AudioBuffer(AudioBuffer&& other);
+    AudioBuffer(AudioBuffer&& other) noexcept;
 
     // Copy + Move assign operators
     AudioBuffer& operator=(const AudioBuffer& other);
-    AudioBuffer& operator=(AudioBuffer&& other);
+    AudioBuffer& operator=(AudioBuffer&& other) noexcept;
 
     // Destructor
     ~AudioBuffer();

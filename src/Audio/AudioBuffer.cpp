@@ -18,7 +18,7 @@ AudioBuffer::AudioBuffer(const AudioBuffer& other)
     std::memcpy(m_Data, other.m_Data, m_NumChannels * m_BufferSize);
 }
 
-AudioBuffer::AudioBuffer(AudioBuffer&& other)
+AudioBuffer::AudioBuffer(AudioBuffer&& other) noexcept
     : m_NumChannels{other.numChannels()}
     , m_BufferSize{other.bufferSize()}
     , m_Data{other.m_Data}
@@ -41,7 +41,7 @@ AudioBuffer& AudioBuffer::operator=(const AudioBuffer& other)
     return *this;
 }
 
-AudioBuffer& AudioBuffer::operator=(AudioBuffer&& other)
+AudioBuffer& AudioBuffer::operator=(AudioBuffer&& other) noexcept
 {
     if (&other != this) {
         delete[] m_Data;
