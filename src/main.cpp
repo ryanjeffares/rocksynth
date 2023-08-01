@@ -66,6 +66,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
     uint32_t bufferSize = 256; 
     
     s_oscillator.prepare(sr);
+    s_oscillator.setShape(Oscillator::Shape::Saw);
     s_oscillator.setFrequency(220.0f);
 
     if (dac.openStream(&streamParameters, nullptr, RTAUDIO_FLOAT32, sr, &bufferSize, &audioCallback)) {
