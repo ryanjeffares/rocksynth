@@ -1,3 +1,5 @@
+#include "Synth/Oscillator.hpp"
+
 #include <fmt/core.h>
 
 #include <rtaudio/RtAudio.h>
@@ -8,11 +10,16 @@
 #include <random>
 #include <thread>
 
-static std::random_device s_Rd;
-static std::mt19937 s_Gen{s_Rd()};
-static std::uniform_real_distribution<float> s_Dist(-1.0f, 1.0f);
+static Oscillator s_oscillator;
 
-int audio_callback(void* outBuffer, [[maybe_unused]] void* inBuffer, uint32_t bufferFrames, [[maybe_unused]] double streamTime, RtAudioStreamStatus status, [[maybe_unused]] void* userData)
+int audioCallback(
+        void* outBuffer,
+        [[maybe_unused]] void* inBuffer,
+        uint32_t bufferFrames,
+        [[maybe_unused]] double streamTime,
+        RtAudioStreamStatus status,
+        [[maybe_unused]] void* userData
+)
 {
     float* buffer = (float*)outBuffer;
 
@@ -22,8 +29,9 @@ int audio_callback(void* outBuffer, [[maybe_unused]] void* inBuffer, uint32_t bu
     }
 
     for (size_t sample = 0; sample < bufferFrames; sample++) {
+        auto value = s_oscillator.getNextSample();
         for (size_t channel = 0; channel < 2; channel++) {
-            *buffer++ = s_Dist(s_Gen) * 0.5f;
+            *buffer++ = value * 0.5f;
         }
     }
 
@@ -40,24 +48,27 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
         }
     };
 
-    auto device_ids = dac.getDeviceIds();
-    if (device_ids.empty()) {
+    auto deviceIds = dac.getDeviceIds();
+    if (deviceIds.empty()) {
         fmt::print(stderr, "No audio devices found.\n");
         std::exit(1);
     }
 
-    auto default_device = dac.getDefaultOutputDevice();
+    auto defaultDevice = dac.getDefaultOutputDevice();
     
-    RtAudio::StreamParameters stream_parameters {
-        .deviceId = default_device,
+    RtAudio::StreamParameters streamParameters {
+        .deviceId = defaultDevice,
         .nChannels = 2,
         .firstChannel = 0
     };
 
     uint32_t sr = 44100;
-    uint32_t buffer_size = 256; 
+    uint32_t bufferSize = 256; 
+    
+    s_oscillator.prepare(sr);
+    s_oscillator.setFrequency(220.0f);
 
-    if (dac.openStream(&stream_parameters, nullptr, RTAUDIO_FLOAT32, sr, &buffer_size, &audio_callback)) {
+    if (dac.openStream(&streamParameters, nullptr, RTAUDIO_FLOAT32, sr, &bufferSize, &audioCallback)) {
         fmt::print(stderr, "{}\n", dac.getErrorText());
         std::exit(1);
     }

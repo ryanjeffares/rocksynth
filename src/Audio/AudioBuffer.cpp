@@ -3,39 +3,39 @@
 #include <cstring>
 
 AudioBuffer::AudioBuffer(size_t numChannels, size_t bufferSize)
-    : m_NumChannels{numChannels}
-    , m_BufferSize{bufferSize}
-    , m_Data{new float[m_NumChannels * m_BufferSize]}
+    : m_numChannels{numChannels}
+    , m_bufferSize{bufferSize}
+    , m_data{new float[m_numChannels * m_bufferSize]}
 {
-    
+    std::memset(m_data, 0, sizeof(float) * m_bufferSize * m_bufferSize);
 }
 
 AudioBuffer::AudioBuffer(const AudioBuffer& other)
-    : m_NumChannels{other.numChannels()}
-    , m_BufferSize{other.bufferSize()}
-    , m_Data{new float[m_NumChannels * m_BufferSize]}
+    : m_numChannels{other.numChannels()}
+    , m_bufferSize{other.bufferSize()}
+    , m_data{new float[m_numChannels * m_bufferSize]}
 {
-    std::memcpy(m_Data, other.m_Data, m_NumChannels * m_BufferSize);
+    std::memcpy(m_data, other.m_data, sizeof(float) * m_numChannels * m_bufferSize);
 }
 
 AudioBuffer::AudioBuffer(AudioBuffer&& other) noexcept
-    : m_NumChannels{other.numChannels()}
-    , m_BufferSize{other.bufferSize()}
-    , m_Data{other.m_Data}
+    : m_numChannels{other.numChannels()}
+    , m_bufferSize{other.bufferSize()}
+    , m_data{other.m_data}
 {
-    other.m_NumChannels = 0;
-    other.m_BufferSize = 0;
-    other.m_Data = nullptr;
+    other.m_numChannels = 0;
+    other.m_bufferSize = 0;
+    other.m_data = nullptr;
 }
 
 AudioBuffer& AudioBuffer::operator=(const AudioBuffer& other)
 {
     if (&other != this) {
-        delete[] m_Data;
-        m_NumChannels = other.numChannels();
-        m_BufferSize = other.bufferSize();
-        m_Data = new float[m_NumChannels * m_BufferSize];
-        std::memcpy(m_Data, other.m_Data, m_NumChannels * m_BufferSize);
+        delete[] m_data;
+        m_numChannels = other.numChannels();
+        m_bufferSize = other.bufferSize();
+        m_data = new float[m_numChannels * m_bufferSize];
+        std::memcpy(m_data, other.m_data, sizeof(float) * m_numChannels * m_bufferSize);
     }
 
     return *this;
@@ -44,13 +44,13 @@ AudioBuffer& AudioBuffer::operator=(const AudioBuffer& other)
 AudioBuffer& AudioBuffer::operator=(AudioBuffer&& other) noexcept
 {
     if (&other != this) {
-        delete[] m_Data;
-        m_NumChannels = other.numChannels();
-        m_BufferSize = other.bufferSize();
-        m_Data = other.m_Data;
-        other.m_NumChannels = 0;
-        other.m_BufferSize = 0;
-        other.m_Data = nullptr;
+        delete[] m_data;
+        m_numChannels = other.numChannels();
+        m_bufferSize = other.bufferSize();
+        m_data = other.m_data;
+        other.m_numChannels = 0;
+        other.m_bufferSize = 0;
+        other.m_data = nullptr;
     }
 
     return *this;
@@ -58,36 +58,31 @@ AudioBuffer& AudioBuffer::operator=(AudioBuffer&& other) noexcept
 
 AudioBuffer::~AudioBuffer()
 {
-    delete[] m_Data;
+    delete[] m_data;
 }
 
 void AudioBuffer::setSample(size_t channel, size_t sample, float value) noexcept
 {
-    m_Data[channel * m_BufferSize + sample] = value;
+    m_data[channel * m_bufferSize + sample] = value;
+}
+
+void AudioBuffer::addSample(size_t channel, size_t sample, float value) noexcept
+{
+    m_data[channel * m_bufferSize + sample] += value;
 }
 
 float AudioBuffer::getSample(size_t channel, size_t sample) const noexcept
 {
-    return m_Data[channel * m_BufferSize + sample];
+    return m_data[channel * m_bufferSize + sample];
 }
 
 size_t AudioBuffer::numChannels() const noexcept
 {
-    return m_NumChannels;
+    return m_numChannels;
 }
 
 size_t AudioBuffer::bufferSize() const noexcept
 {
-    return m_BufferSize;
-}
-
-float* AudioBuffer::getInterleavedWritePointer() const noexcept
-{
-    return m_Data;
-}
-
-const float* AudioBuffer::getInterleavedReadPointer() const noexcept
-{
-    return m_Data;
+    return m_bufferSize;
 }
 

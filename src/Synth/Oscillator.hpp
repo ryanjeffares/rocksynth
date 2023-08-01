@@ -1,10 +1,7 @@
 #ifndef OSCILLATOR_HPP
 #define OSCILLATOR_HPP
 
-#include <cmath>
-#include <concepts>
 #include <cstdint>
-#include <numbers>
 
 class Oscillator
 {
@@ -17,13 +14,19 @@ public:
         Triangle,
     };
     
-    Oscillator(uint32_t sampleRate);
+    void prepare(uint32_t sampleRate);
+    float getNextSample();
 
-    float getNextSample(Shape shape, float frequency, float pulseWidth = 0.5);
+    void setFrequency(float frequency);
+    void setPulseWidth(float pulseWidth);
+    void setShape(Shape shape);
 
 private:
-    uint32_t m_SampleRate;
-    float m_Phase{0.0f};
+    uint32_t m_sampleRate;
+    float m_phase{0.0f};
+    float m_frequency{1.0f};
+    float m_pulseWidth{0.5f};
+    Shape m_shape{Shape::Sine};
 };
 
 #endif

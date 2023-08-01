@@ -21,18 +21,16 @@ public:
     ~AudioBuffer();
 
     void setSample(size_t channel, size_t sample, float value) noexcept;
+    void addSample(size_t channel, size_t sample, float value) noexcept;
     [[nodiscard]] float getSample(size_t channel, size_t sample) const noexcept;
 
     [[nodiscard]] size_t numChannels() const noexcept;
     [[nodiscard]] size_t bufferSize() const noexcept;
 
-    float* getInterleavedWritePointer() const noexcept;
-    const float* getInterleavedReadPointer() const noexcept;
-
 private:
-    size_t m_NumChannels;
-    size_t m_BufferSize;
-    float* m_Data;
+    size_t m_numChannels;
+    size_t m_bufferSize;
+    float* m_data;
 };
 
 #endif
