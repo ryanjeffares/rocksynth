@@ -14,7 +14,16 @@ FetchContent_MakeAvailable(fmt)
 
 find_package(RtAudio REQUIRED)
 
-add_executable(rocksynth src/main.cpp src/Audio/AudioBuffer.cpp src/Synth/Oscillator.cpp)
+add_executable(
+    rocksynth
+    src/Audio/AudioBuffer.cpp
+    src/main.cpp
+    src/Synth/Adsr.cpp
+    src/Synth/Oscillator.cpp
+    src/Synth/Synth.cpp
+    src/Synth/SynthVoice.cpp
+)
+
 set_property(TARGET rocksynth PROPERTY CXX_STANDARD 20)
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     target_compile_definitions(rocksynth PRIVATE ROCKSYNTH_DEBUG)

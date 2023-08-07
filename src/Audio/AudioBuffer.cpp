@@ -7,7 +7,7 @@ AudioBuffer::AudioBuffer(size_t numChannels, size_t bufferSize)
     , m_bufferSize{bufferSize}
     , m_data{new float[m_numChannels * m_bufferSize]}
 {
-    std::memset(m_data, 0, sizeof(float) * m_bufferSize * m_bufferSize);
+    std::memset(m_data, 0, sizeof(float) * m_numChannels * m_bufferSize);
 }
 
 AudioBuffer::AudioBuffer(const AudioBuffer& other)

@@ -1,4 +1,4 @@
-#include "Synth/Oscillator.hpp"
+#include "Synth/Synth.hpp"
 
 #include <fmt/core.h>
 
@@ -6,11 +6,9 @@
 
 #include <chrono>
 #include <cstdint>
-#include <iostream>
-#include <random>
 #include <thread>
 
-static Oscillator s_oscillator;
+static Synth s_synth;
 
 int audioCallback(
         void* outBuffer,
@@ -28,10 +26,12 @@ int audioCallback(
         return 0;
     }
 
+    AudioBuffer bufferToFill{2, static_cast<size_t>(bufferFrames)};
+    s_synth.process(bufferToFill);
+
     for (size_t sample = 0; sample < bufferFrames; sample++) {
-        auto value = s_oscillator.getNextSample();
         for (size_t channel = 0; channel < 2; channel++) {
-            *buffer++ = value * 0.5f;
+            *buffer++ = bufferToFill.getSample(channel, sample);
         }
     }
 
@@ -65,9 +65,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
     uint32_t sr = 44100;
     uint32_t bufferSize = 256; 
     
-    s_oscillator.prepare(sr);
-    s_oscillator.setShape(Oscillator::Shape::Saw);
-    s_oscillator.setFrequency(220.0f);
+    s_synth.prepare(sr);
+
+    s_synth.setShape<0>(Oscillator::Shape::Saw);
+    s_synth.setShape<1>(Oscillator::Shape::Pulse);
+
+    s_synth.setPulseWidth<1>(0.4f);
+
+    s_synth.setAdsrParam<Adsr::Phase::Attack>(2.0f);
+    s_synth.setAdsrParam<Adsr::Phase::Decay>(2.0f);
+    s_synth.setAdsrParam<Adsr::Phase::Sustain>(0.3f);
+    s_synth.setAdsrParam<Adsr::Phase::Release>(2.0f);
+
+    s_synth.noteOn(32);
 
     if (dac.openStream(&streamParameters, nullptr, RTAUDIO_FLOAT32, sr, &bufferSize, &audioCallback)) {
         fmt::print(stderr, "{}\n", dac.getErrorText());
@@ -81,6 +91,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
     }
 
     using namespace std::chrono_literals;
+    std::this_thread::sleep_for(10s);
+
+    s_synth.noteOff(32);
+
     std::this_thread::sleep_for(10s);
 
     if (dac.isStreamRunning()) {

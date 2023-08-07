@@ -1,48 +1,47 @@
-#ifndef SYNTH_VOICE_HPP
-#define SYNTH_VOICE_HPP
+#ifndef SYNTH_HPP
+#define SYNTH_HPP
 
-#include "Adsr.hpp"
 #include "../Audio/AudioProcessor.hpp"
-#include "Oscillator.hpp"
+#include "SynthVoice.hpp"
 
-#include <array>
-
-class SynthVoice : AudioProcessor
+class Synth : public AudioProcessor
 {
 public:
-    ~SynthVoice() override = default;
+    ~Synth() override = default;
 
     void prepare(uint32_t sampleRate) override;
     void process(AudioBuffer& bufferToFill) override;
 
     void noteOn(uint8_t midiNote);
-    void noteOff();
+    void noteOff(uint8_t midiNote);
 
     template<size_t OscNumber> requires (OscNumber < 2)
     void setPulseWidth(float pulseWidth)
     {
-        m_oscillators[OscNumber].setPulseWidth(pulseWidth);
+        for (auto& voice : m_voices) {
+            voice.setPulseWidth<OscNumber>(pulseWidth);
+        }
     }
 
     template<size_t OscNumber> requires (OscNumber < 2)
     void setShape(Oscillator::Shape shape)
     {
-        m_oscillators[OscNumber].setShape(shape);
+        for (auto& voice : m_voices) {
+            voice.setShape<OscNumber>(shape);
+        }
     }
 
     template<Adsr::Phase ParamType> requires (ParamType != Adsr::Phase::Idle)
     void setAdsrParam(float value)
     {
-        m_adsr.setParam<ParamType>(value);
+        for (auto& voice : m_voices) {
+            voice.setAdsrParam<ParamType>(value);
+        }
     }
 
-    uint8_t getCurrentNote() const;
-
 private:
-    uint8_t m_currentNote{0};
-
-    Adsr m_adsr;
-    std::array<Oscillator, 2> m_oscillators;
+    size_t m_lastVoiceIndex{0};
+    std::array<SynthVoice, 8> m_voices;
 };
 
 #endif
