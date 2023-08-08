@@ -7,7 +7,7 @@
 
 #include <array>
 
-class SynthVoice : AudioProcessor
+class SynthVoice : public AudioProcessor
 {
 public:
     ~SynthVoice() override = default;
