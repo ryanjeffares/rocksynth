@@ -28,25 +28,31 @@ int audioCallback(
 )
 {
     std::vector<unsigned char> midiMessage;
-    /*double timeStamp = */s_midiIn.getMessage(&midiMessage);
+    s_midiIn.getMessage(&midiMessage);
     if (!midiMessage.empty()) {
-//        fmt::print("MIDI message with timestamp {}\n", timeStamp);
-//        for (size_t i = 0; i < midiMessage.size(); i++) {
-//            fmt::print("Byte {} = {:b}\n", i, (int)midiMessage[i]);
-//        }
-//
+#ifdef ROCKSYNTH_DEBUG
+        fmt::print("MIDI message with timestamp {}\n", timeStamp);
+        for (size_t i = 0; i < midiMessage.size(); i++) {
+            fmt::print("Byte {} = {:b}\n", i, (int)midiMessage[i]);
+        }
+#endif
+
         auto statusByte = midiMessage[0] & 0b11110000;
         switch (statusByte) {
             case s_noteOnStatusByte: {
                 uint8_t note = midiMessage[1];
                 uint8_t velocity = midiMessage[2];
-  //              fmt::print("Note on: note number = {}, velocity = {}\n", note, velocity);
+#ifdef ROCKSYNTH_DEBUG
+                fmt::print("Note on: note number = {}, velocity = {}\n", note, velocity);
+#endif
                 s_synth.noteOn(note, velocity);
                 break;
             }
             case s_noteOffStatysByte: {
                 uint8_t note = midiMessage[1];
-   //             fmt::print("Note off: note number = {}\n", note);
+#ifdef ROCKSYNTH_DEBUG
+                fmt::print("Note off: note number = {}\n", note);
+#endif
                 s_synth.noteOff(note);
                 break;
             }
@@ -83,6 +89,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
         }
     }
 
+    auto numMidiPorts = s_midiIn.getPortCount();
+    if (numMidiPorts == 0) {
+        fmt::print("No MIDI input devices found.\n\n");
+    } else {
+        for (uint32_t i = 0; i < numMidiPorts; i++) {
+            fmt::print("Found MIDI device #{}: {}\n", i, s_midiIn.getPortName(i));
+        }
+        s_midiIn.openPort(midiDeviceNum);
+        fmt::print("Using MIDI device: {}\n", s_midiIn.getPortName(midiDeviceNum));
+    }
+ 
     RtAudio dac;
 
     auto cleanup = [&] {
@@ -100,18 +117,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
     auto defaultDevice = dac.getDefaultOutputDevice();
     auto deviceInfo = dac.getDeviceInfo(defaultDevice);
     fmt::print("Using audio output device: {}\n", deviceInfo.name);
-
-    auto numMidiPorts = s_midiIn.getPortCount();
-    if (numMidiPorts == 0) {
-        fmt::print("No MIDI input devices found.\n\n");
-    } else {
-        for (uint32_t i = 0; i < numMidiPorts; i++) {
-            fmt::print("Found MIDI device #{}: {}\n", i, s_midiIn.getPortName(i));
-        }
-        s_midiIn.openPort(midiDeviceNum);
-        fmt::print("Using MIDI device: {}\n", s_midiIn.getPortName(midiDeviceNum));
-    }
-    
+   
     RtAudio::StreamParameters streamParameters {
         .deviceId = defaultDevice,
         .nChannels = 2,
