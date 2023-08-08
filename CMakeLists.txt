@@ -13,6 +13,7 @@ FetchContent_Declare(fmt
 FetchContent_MakeAvailable(fmt)
 
 find_package(RtAudio REQUIRED)
+find_package(RtMidi REQUIRED)
 
 add_executable(
     rocksynth
@@ -30,4 +31,4 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 endif()
 
 target_compile_options(rocksynth PRIVATE -Wall -Wextra -Wpedantic -Werror)
-target_link_libraries(rocksynth PRIVATE fmt::fmt RtAudio::rtaudio)
+target_link_libraries(rocksynth PRIVATE fmt::fmt RtAudio::rtaudio RtMidi::rtmidi)

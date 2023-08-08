@@ -12,7 +12,7 @@ public:
     void prepare(uint32_t sampleRate) override;
     void process(AudioBuffer& bufferToFill) override;
 
-    void noteOn(uint8_t midiNote);
+    void noteOn(uint8_t midiNote, uint8_t velocity);
     void noteOff(uint8_t midiNote);
 
     template<size_t OscNumber> requires (OscNumber < 2)

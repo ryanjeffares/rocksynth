@@ -43,6 +43,8 @@ private:
 
     float m_attackTime{0.0f}, m_decayTime{0.0f}, m_releaseTime{0.0f};
     float m_sustainLevel{1.0f};
+
+    float m_maxLevel{0.0f};
 };
 
 #endif

@@ -15,7 +15,7 @@ public:
     void prepare(uint32_t sampleRate) override;
     void process(AudioBuffer& bufferToFill) override;
 
-    void noteOn(uint8_t midiNote);
+    void noteOn(uint8_t midiNote, uint8_t velocity);
     void noteOff();
 
     template<size_t OscNumber> requires (OscNumber < 2)
@@ -40,6 +40,7 @@ public:
 
 private:
     uint8_t m_currentNote{0};
+    float m_currentVelocity{0.0f};
 
     Adsr m_adsr;
     std::array<Oscillator, 2> m_oscillators;

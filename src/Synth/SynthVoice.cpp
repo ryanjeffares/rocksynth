@@ -24,8 +24,8 @@ void SynthVoice::process(AudioBuffer& bufferToFill)
                 m_oscillators.begin(),
                 m_oscillators.end(),
                 0.0f,
-                [adsrLevel] (float value, Oscillator& osc) {
-                    return value + osc.getNextSample() * adsrLevel;
+                [&] (float value, Oscillator& osc) {
+                    return value + osc.getNextSample() * adsrLevel * m_currentVelocity;
                 }
             );
 
@@ -35,9 +35,10 @@ void SynthVoice::process(AudioBuffer& bufferToFill)
     }
 }
 
-void SynthVoice::noteOn(uint8_t midiNote)
+void SynthVoice::noteOn(uint8_t midiNote, uint8_t velocity)
 {
     m_currentNote = midiNote;
+    m_currentVelocity = static_cast<float>(velocity) / 127.0f;
 
     for (auto& osc : m_oscillators) {
         osc.setFrequency(mtof(midiNote));

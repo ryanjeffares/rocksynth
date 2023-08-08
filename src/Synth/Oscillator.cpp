@@ -7,7 +7,7 @@
 
 void Oscillator::prepare(uint32_t sampleRate)
 {
-    m_sampleRate = sampleRate;
+    m_sampleRate = static_cast<float>(sampleRate);
 }
 
 float Oscillator::getNextSample()

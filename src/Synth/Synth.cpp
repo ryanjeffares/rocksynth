@@ -17,24 +17,19 @@ void Synth::process(AudioBuffer &bufferToFill)
     }
 }
 
-void Synth::noteOn(uint8_t midiNote)
+void Synth::noteOn(uint8_t midiNote, uint8_t velocity)
 {
     auto& voice = m_voices[m_lastVoiceIndex++];
     m_lastVoiceIndex %= 8;
-    voice.noteOn(midiNote);
+    voice.noteOn(midiNote, velocity);
 }
 
 void Synth::noteOff(uint8_t midiNote)
 {
-    auto voice = std::find_if(
-            m_voices.begin(),
-            m_voices.end(),
-            [midiNote] (const SynthVoice& voice) {
-                return voice.getCurrentNote() == midiNote;
-            }
-        );
-    if (voice != m_voices.end()) {
-        voice->noteOff();
+    for (auto& voice : m_voices) {
+        if (voice.getCurrentNote() == midiNote) {
+            voice.noteOff();
+        }
     }
 }
 

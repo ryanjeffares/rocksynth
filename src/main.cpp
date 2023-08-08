@@ -3,12 +3,20 @@
 #include <fmt/core.h>
 
 #include <rtaudio/RtAudio.h>
+#include <rtmidi/RtMidi.h>
 
 #include <chrono>
 #include <cstdint>
+#include <string>
 #include <thread>
+#include <vector>
 
 static Synth s_synth;
+static RtMidiIn s_midiIn;
+
+static constexpr uint8_t s_noteOnStatusByte        = 0b10010000;
+static constexpr uint8_t s_noteOffStatysByte       = 0b10000000;
+static constexpr uint8_t s_controlChangeStatusByte = 0b10110000;
 
 int audioCallback(
         void* outBuffer,
@@ -19,6 +27,32 @@ int audioCallback(
         [[maybe_unused]] void* userData
 )
 {
+    std::vector<unsigned char> midiMessage;
+    /*double timeStamp = */s_midiIn.getMessage(&midiMessage);
+    if (!midiMessage.empty()) {
+//        fmt::print("MIDI message with timestamp {}\n", timeStamp);
+//        for (size_t i = 0; i < midiMessage.size(); i++) {
+//            fmt::print("Byte {} = {:b}\n", i, (int)midiMessage[i]);
+//        }
+//
+        auto statusByte = midiMessage[0] & 0b11110000;
+        switch (statusByte) {
+            case s_noteOnStatusByte: {
+                uint8_t note = midiMessage[1];
+                uint8_t velocity = midiMessage[2];
+  //              fmt::print("Note on: note number = {}, velocity = {}\n", note, velocity);
+                s_synth.noteOn(note, velocity);
+                break;
+            }
+            case s_noteOffStatysByte: {
+                uint8_t note = midiMessage[1];
+   //             fmt::print("Note off: note number = {}\n", note);
+                s_synth.noteOff(note);
+                break;
+            }
+        }
+    }
+
     float* buffer = (float*)outBuffer;
 
     if (status) {
@@ -40,6 +74,15 @@ int audioCallback(
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
 {
+    uint32_t midiDeviceNum = 0;
+    if (argc > 1) {
+        try {
+            midiDeviceNum = std::stoi(argv[1]);
+        } catch (const std::exception& e) {
+            fmt::print(stderr, "Expected integer for MIDI device number: {}\n", e.what());
+        }
+    }
+
     RtAudio dac;
 
     auto cleanup = [&] {
@@ -55,6 +98,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
     }
 
     auto defaultDevice = dac.getDefaultOutputDevice();
+    auto deviceInfo = dac.getDeviceInfo(defaultDevice);
+    fmt::print("Using audio output device: {}\n", deviceInfo.name);
+
+    auto numMidiPorts = s_midiIn.getPortCount();
+    if (numMidiPorts == 0) {
+        fmt::print("No MIDI input devices found.\n\n");
+    } else {
+        for (uint32_t i = 0; i < numMidiPorts; i++) {
+            fmt::print("Found MIDI device #{}: {}\n", i, s_midiIn.getPortName(i));
+        }
+        s_midiIn.openPort(midiDeviceNum);
+        fmt::print("Using MIDI device: {}\n", s_midiIn.getPortName(midiDeviceNum));
+    }
     
     RtAudio::StreamParameters streamParameters {
         .deviceId = defaultDevice,
@@ -72,12 +128,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
 
     s_synth.setPulseWidth<1>(0.4f);
 
-    s_synth.setAdsrParam<Adsr::Phase::Attack>(2.0f);
-    s_synth.setAdsrParam<Adsr::Phase::Decay>(2.0f);
+    s_synth.setAdsrParam<Adsr::Phase::Attack>(0.0f);
+    s_synth.setAdsrParam<Adsr::Phase::Decay>(1.0f);
     s_synth.setAdsrParam<Adsr::Phase::Sustain>(0.3f);
     s_synth.setAdsrParam<Adsr::Phase::Release>(2.0f);
-
-    s_synth.noteOn(32);
 
     if (dac.openStream(&streamParameters, nullptr, RTAUDIO_FLOAT32, sr, &bufferSize, &audioCallback)) {
         fmt::print(stderr, "{}\n", dac.getErrorText());
@@ -90,12 +144,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
         std::exit(1);
     }
 
-    using namespace std::chrono_literals;
-    std::this_thread::sleep_for(10s);
-
-    s_synth.noteOff(32);
-
-    std::this_thread::sleep_for(10s);
+    std::cin.get();
 
     if (dac.isStreamRunning()) {
         dac.stopStream();

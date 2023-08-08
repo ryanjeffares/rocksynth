@@ -22,7 +22,7 @@ public:
     void setShape(Shape shape);
 
 private:
-    uint32_t m_sampleRate;
+    float m_sampleRate;
     float m_phase{0.0f};
     float m_frequency{1.0f};
     float m_pulseWidth{0.5f};
