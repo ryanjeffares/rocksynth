@@ -28,34 +28,38 @@ int audioCallback(
 )
 {
     std::vector<uint8_t> midiMessage;
-    s_midiIn.getMessage(&midiMessage);
-    if (!midiMessage.empty()) {
+    while (true) {
+        [[maybe_unused]] double timeStamp = s_midiIn.getMessage(&midiMessage);
+        if (!midiMessage.empty()) {
 #ifdef ROCKSYNTH_DEBUG
-        fmt::print("MIDI message with timestamp {}\n", timeStamp);
-        for (size_t i = 0; i < midiMessage.size(); i++) {
-            fmt::print("Byte {} = {:b}\n", i, (int)midiMessage[i]);
-        }
+            fmt::print("MIDI message with timestamp {}\n", timeStamp);
+            for (size_t i = 0; i < midiMessage.size(); i++) {
+                fmt::print("Byte {} = {:#b}\n", i, (int)midiMessage[i]);
+            }
 #endif
 
-        auto statusByte = midiMessage[0] & 0b11110000;
-        switch (statusByte) {
-            case s_noteOnStatusByte: {
-                uint8_t note = midiMessage[1];
-                uint8_t velocity = midiMessage[2];
+            auto statusByte = midiMessage[0] & 0b11110000;
+            switch (statusByte) {
+                case s_noteOnStatusByte: {
+                    uint8_t note = midiMessage[1];
+                    uint8_t velocity = midiMessage[2];
 #ifdef ROCKSYNTH_DEBUG
-                fmt::print("Note on: note number = {}, velocity = {}\n", note, velocity);
+                    fmt::print("Note on: note number = {}, velocity = {}\n\n", note, velocity);
 #endif
-                s_synth.noteOn(note, velocity);
-                break;
-            }
-            case s_noteOffStatusByte: {
-                uint8_t note = midiMessage[1];
+                    s_synth.noteOn(note, velocity);
+                    break;
+                }
+                case s_noteOffStatusByte: {
+                    uint8_t note = midiMessage[1];
 #ifdef ROCKSYNTH_DEBUG
-                fmt::print("Note off: note number = {}\n", note);
+                    fmt::print("Note off: note number = {}\n\n", note);
 #endif
-                s_synth.noteOff(note);
-                break;
+                    s_synth.noteOff(note);
+                    break;
+                }
             }
+        } else {
+            break;
         }
     }
 
