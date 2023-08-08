@@ -30,6 +30,12 @@ public:
         m_oscillators[OscNumber].setShape(shape);
     }
 
+    template<size_t OscNumber> requires (OscNumber < 2)
+    void setVolume(float volume) noexcept
+    {
+        m_oscillatorVolumes[OscNumber] = volume;
+    }
+
     template<Adsr::Phase ParamType> requires (ParamType != Adsr::Phase::Idle)
     void setAdsrParam(float value) noexcept
     {
@@ -44,6 +50,7 @@ private:
 
     Adsr m_adsr;
     std::array<Oscillator, 2> m_oscillators;
+    std::array<float, 2> m_oscillatorVolumes{0.5f, 0.5f};
 };
 
 #endif

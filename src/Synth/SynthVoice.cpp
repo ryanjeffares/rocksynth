@@ -20,14 +20,10 @@ void SynthVoice::process(AudioBuffer& bufferToFill)
 {
     for (size_t sample = 0; sample < bufferToFill.bufferSize(); sample++) {
         auto adsrLevel = m_adsr.getNextValue();
-        auto oscOutput = std::accumulate(
-                m_oscillators.begin(),
-                m_oscillators.end(),
-                0.0f,
-                [&] (float value, Oscillator& osc) {
-                    return value + osc.getNextSample() * adsrLevel * m_currentVelocity;
-                }
-            );
+        auto oscOutput = 0.0f;
+        for (size_t i = 0; i < 2; i++) {
+            oscOutput += m_oscillators[i].getNextSample() * adsrLevel * m_currentVelocity * m_oscillatorVolumes[i];
+        }
 
         for (size_t channel = 0; channel < bufferToFill.numChannels(); channel++) {
             bufferToFill.addSample(channel, sample, oscOutput);

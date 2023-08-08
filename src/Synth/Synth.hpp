@@ -31,6 +31,14 @@ public:
         }
     }
 
+    template<size_t OscNumber> requires (OscNumber < 2)
+    void setVolume(float volume) noexcept
+    {
+        for (auto& voice : m_voices) {
+            voice.setVolume<OscNumber>(volume);
+        }
+    }
+
     template<Adsr::Phase ParamType> requires (ParamType != Adsr::Phase::Idle)
     void setAdsrParam(float value) noexcept
     {

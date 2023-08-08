@@ -46,6 +46,42 @@ int audioCallback(
 #ifdef ROCKSYNTH_DEBUG
                     fmt::print("Control Change: controller number = {}, value = {}\n\n", controllerNumber, value);
 #endif
+                    switch (controllerNumber) {
+                        case 14:
+                            // max of 5 seconds on timed ADSR params
+                            s_synth.setAdsrParam<Adsr::Phase::Attack>(static_cast<float>(value) / 127.0f * 5.0f);
+                            break;
+                        case 15:
+                            s_synth.setAdsrParam<Adsr::Phase::Decay>(static_cast<float>(value) / 127.0f * 5.0f);
+                            break;
+                        case 16:
+                            // scale sustain to be 0 - 1
+                            s_synth.setAdsrParam<Adsr::Phase::Sustain>(static_cast<float>(value) / 127.0f);
+                            break;
+                        case 17:
+                            s_synth.setAdsrParam<Adsr::Phase::Release>(static_cast<float>(value) / 127.0f * 5.0f);
+                            break;
+                        case 18:
+                            // scale this to be 0 - 3
+                            s_synth.setShape<0>(static_cast<Oscillator::Shape>(value / 42));
+                            break;
+                        case 19:
+                            s_synth.setShape<1>(static_cast<Oscillator::Shape>(value / 42));
+                            break;
+                        case 20:
+                            // scale pulsewidth to be 0 - 1
+                            s_synth.setPulseWidth<0>(static_cast<float>(value) / 127.0f);
+                            break;
+                        case 21:
+                            s_synth.setPulseWidth<1>(static_cast<float>(value) / 127.0f);
+                            break;
+                        case 22:
+                            s_synth.setVolume<0>(static_cast<float>(value) / 127.0f);
+                            break;
+                        case 23:
+                            s_synth.setVolume<1>(static_cast<float>(value) / 127.0f);
+                            break;
+                    }
                     break;
                 }
                 case s_noteOnStatusByte: {

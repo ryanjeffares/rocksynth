@@ -29,6 +29,9 @@ public:
         } else if constexpr (ParamType == Phase::Decay) {
             m_decayTime = value;
         } else if constexpr (ParamType == Phase::Sustain) {
+            if (m_state == Phase::Sustain) {
+                m_maxLevel = value;
+            }
             m_sustainLevel = value;
         } else if constexpr (ParamType == Phase::Release) {
             m_releaseTime = value;
@@ -45,6 +48,8 @@ private:
     float m_sustainLevel{1.0f};
 
     float m_maxLevel{0.0f};
+
+public:
 };
 
 #endif
