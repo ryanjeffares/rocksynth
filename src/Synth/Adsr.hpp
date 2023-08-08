@@ -15,14 +15,14 @@ public:
         Release,
     };
 
-    void prepare(uint32_t sampleRate);
-    float getNextValue();
+    void prepare(uint32_t sampleRate) noexcept;
+    float getNextValue() noexcept;
 
-    void noteOn();
-    void noteOff();
+    void noteOn() noexcept;
+    void noteOff() noexcept;
 
     template<Phase ParamType> requires (ParamType != Phase::Idle)
-    void setParam(float value)
+    void setParam(float value) noexcept
     {
         if constexpr (ParamType == Phase::Attack) {
             m_attackTime = value;

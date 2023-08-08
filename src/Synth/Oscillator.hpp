@@ -14,12 +14,12 @@ public:
         Triangle,
     };
     
-    void prepare(uint32_t sampleRate);
+    void prepare(uint32_t sampleRate) noexcept;
     float getNextSample();
 
-    void setFrequency(float frequency);
-    void setPulseWidth(float pulseWidth);
-    void setShape(Shape shape);
+    void setFrequency(float frequency) noexcept;
+    void setPulseWidth(float pulseWidth) noexcept;
+    void setShape(Shape shape) noexcept;
 
 private:
     float m_sampleRate;

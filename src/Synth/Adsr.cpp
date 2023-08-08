@@ -2,12 +2,12 @@
 
 #include <cmath>
 
-void Adsr::prepare(uint32_t sampleRate)
+void Adsr::prepare(uint32_t sampleRate) noexcept
 {
     m_sampleRate = static_cast<float>(sampleRate);
 }
 
-float Adsr::getNextValue()
+float Adsr::getNextValue() noexcept
 {
     switch (m_state) {
         case Phase::Attack: {
@@ -65,14 +65,14 @@ float Adsr::getNextValue()
     }
 }
 
-void Adsr::noteOn()
+void Adsr::noteOn() noexcept
 {
     // reset everything when a new note is activated
     m_sampleCounter = 0;
     m_state = Phase::Attack;
 }
 
-void Adsr::noteOff()
+void Adsr::noteOff() noexcept
 {
     // don't do anything if the whole process has already finished
     if (m_state != Phase::Release && m_state != Phase::Idle) {

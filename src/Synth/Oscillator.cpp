@@ -5,7 +5,7 @@
 #include <cmath>
 #include <numbers>
 
-void Oscillator::prepare(uint32_t sampleRate)
+void Oscillator::prepare(uint32_t sampleRate) noexcept
 {
     m_sampleRate = static_cast<float>(sampleRate);
 }
@@ -33,17 +33,17 @@ float Oscillator::getNextSample()
     }
 }
 
-void Oscillator::setFrequency(float frequency)
+void Oscillator::setFrequency(float frequency) noexcept
 {
     m_frequency = frequency;
 }
 
-void Oscillator::setPulseWidth(float pulseWidth)
+void Oscillator::setPulseWidth(float pulseWidth) noexcept
 {
     m_pulseWidth = pulseWidth;
 }
 
-void Oscillator::setShape(Shape shape)
+void Oscillator::setShape(Shape shape) noexcept
 {
     m_shape = shape;
 }
