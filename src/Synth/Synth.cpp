@@ -1,7 +1,5 @@
 #include "Synth.hpp"
 
-#include <cmath>
-
 void Synth::prepare(uint32_t sampleRate)
 {
     for (auto& voice : m_voices) {
