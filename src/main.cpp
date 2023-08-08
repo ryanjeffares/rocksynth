@@ -15,7 +15,7 @@ static Synth s_synth;
 static RtMidiIn s_midiIn;
 
 static constexpr uint8_t s_noteOnStatusByte        = 0b10010000;
-static constexpr uint8_t s_noteOffStatysByte       = 0b10000000;
+static constexpr uint8_t s_noteOffStatusByte       = 0b10000000;
 static constexpr uint8_t s_controlChangeStatusByte = 0b10110000;
 
 int audioCallback(
@@ -27,7 +27,7 @@ int audioCallback(
         [[maybe_unused]] void* userData
 )
 {
-    std::vector<unsigned char> midiMessage;
+    std::vector<uint8_t> midiMessage;
     s_midiIn.getMessage(&midiMessage);
     if (!midiMessage.empty()) {
 #ifdef ROCKSYNTH_DEBUG
@@ -48,7 +48,7 @@ int audioCallback(
                 s_synth.noteOn(note, velocity);
                 break;
             }
-            case s_noteOffStatysByte: {
+            case s_noteOffStatusByte: {
                 uint8_t note = midiMessage[1];
 #ifdef ROCKSYNTH_DEBUG
                 fmt::print("Note off: note number = {}\n", note);
