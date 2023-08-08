@@ -15,28 +15,28 @@ public:
     void prepare(uint32_t sampleRate) override;
     void process(AudioBuffer& bufferToFill) override;
 
-    void noteOn(uint8_t midiNote, uint8_t velocity);
-    void noteOff();
+    void noteOn(uint8_t midiNote, uint8_t velocity) noexcept;
+    void noteOff() noexcept;
 
     template<size_t OscNumber> requires (OscNumber < 2)
-    void setPulseWidth(float pulseWidth)
+    void setPulseWidth(float pulseWidth) noexcept
     {
         m_oscillators[OscNumber].setPulseWidth(pulseWidth);
     }
 
     template<size_t OscNumber> requires (OscNumber < 2)
-    void setShape(Oscillator::Shape shape)
+    void setShape(Oscillator::Shape shape) noexcept
     {
         m_oscillators[OscNumber].setShape(shape);
     }
 
     template<Adsr::Phase ParamType> requires (ParamType != Adsr::Phase::Idle)
-    void setAdsrParam(float value)
+    void setAdsrParam(float value) noexcept
     {
         m_adsr.setParam<ParamType>(value);
     }
 
-    uint8_t getCurrentNote() const;
+    [[nodiscard]] uint8_t getCurrentNote() const noexcept;
 
 private:
     uint8_t m_currentNote{0};

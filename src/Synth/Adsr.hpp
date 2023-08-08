@@ -16,7 +16,7 @@ public:
     };
 
     void prepare(uint32_t sampleRate) noexcept;
-    float getNextValue() noexcept;
+    [[nodiscard]] float getNextValue() noexcept;
 
     void noteOn() noexcept;
     void noteOff() noexcept;

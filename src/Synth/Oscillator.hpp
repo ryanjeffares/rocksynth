@@ -15,7 +15,7 @@ public:
     };
     
     void prepare(uint32_t sampleRate) noexcept;
-    float getNextSample();
+    [[nodiscard]] float getNextSample();
 
     void setFrequency(float frequency) noexcept;
     void setPulseWidth(float pulseWidth) noexcept;

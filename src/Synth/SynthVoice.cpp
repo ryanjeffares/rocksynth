@@ -35,7 +35,7 @@ void SynthVoice::process(AudioBuffer& bufferToFill)
     }
 }
 
-void SynthVoice::noteOn(uint8_t midiNote, uint8_t velocity)
+void SynthVoice::noteOn(uint8_t midiNote, uint8_t velocity) noexcept
 {
     m_currentNote = midiNote;
     m_currentVelocity = static_cast<float>(velocity) / 127.0f;
@@ -46,12 +46,12 @@ void SynthVoice::noteOn(uint8_t midiNote, uint8_t velocity)
     m_adsr.noteOn();
 }
 
-void SynthVoice::noteOff()
+void SynthVoice::noteOff() noexcept
 {
     m_adsr.noteOff();
 }
 
-uint8_t SynthVoice::getCurrentNote() const
+uint8_t SynthVoice::getCurrentNote() const noexcept
 {
     return m_currentNote;
 }
