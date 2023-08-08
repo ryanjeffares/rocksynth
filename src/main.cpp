@@ -40,6 +40,14 @@ int audioCallback(
 
             auto statusByte = midiMessage[0] & 0b11110000;
             switch (statusByte) {
+                case s_controlChangeStatusByte: {
+                    uint8_t controllerNumber = midiMessage[1];
+                    uint8_t value = midiMessage[2];
+#ifdef ROCKSYNTH_DEBUG
+                    fmt::print("Control Change: controller number = {}, value = {}\n\n", controllerNumber, value);
+#endif
+                    break;
+                }
                 case s_noteOnStatusByte: {
                     uint8_t note = midiMessage[1];
                     uint8_t velocity = midiMessage[2];
@@ -139,9 +147,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
     s_synth.setPulseWidth<1>(0.4f);
 
     s_synth.setAdsrParam<Adsr::Phase::Attack>(0.0f);
-    s_synth.setAdsrParam<Adsr::Phase::Decay>(1.0f);
+    s_synth.setAdsrParam<Adsr::Phase::Decay>(0.1f);
     s_synth.setAdsrParam<Adsr::Phase::Sustain>(0.3f);
-    s_synth.setAdsrParam<Adsr::Phase::Release>(2.0f);
+    s_synth.setAdsrParam<Adsr::Phase::Release>(0.2f);
 
     if (dac.openStream(&streamParameters, nullptr, RTAUDIO_FLOAT32, sr, &bufferSize, &audioCallback)) {
         fmt::print(stderr, "{}\n", dac.getErrorText());
