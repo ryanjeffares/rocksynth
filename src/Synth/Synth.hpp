@@ -12,11 +12,11 @@ public:
     void prepare(uint32_t sampleRate) override;
     void process(AudioBuffer& bufferToFill) override;
 
-    void noteOn(uint8_t midiNote, uint8_t velocity);
-    void noteOff(uint8_t midiNote);
+    void noteOn(uint8_t midiNote, uint8_t velocity) noexcept;
+    void noteOff(uint8_t midiNote) noexcept;
 
     template<size_t OscNumber> requires (OscNumber < 2)
-    void setPulseWidth(float pulseWidth)
+    void setPulseWidth(float pulseWidth) noexcept
     {
         for (auto& voice : m_voices) {
             voice.setPulseWidth<OscNumber>(pulseWidth);
@@ -24,7 +24,7 @@ public:
     }
 
     template<size_t OscNumber> requires (OscNumber < 2)
-    void setShape(Oscillator::Shape shape)
+    void setShape(Oscillator::Shape shape) noexcept
     {
         for (auto& voice : m_voices) {
             voice.setShape<OscNumber>(shape);
@@ -32,7 +32,7 @@ public:
     }
 
     template<Adsr::Phase ParamType> requires (ParamType != Adsr::Phase::Idle)
-    void setAdsrParam(float value)
+    void setAdsrParam(float value) noexcept
     {
         for (auto& voice : m_voices) {
             voice.setAdsrParam<ParamType>(value);

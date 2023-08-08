@@ -17,14 +17,13 @@ void Synth::process(AudioBuffer &bufferToFill)
     }
 }
 
-void Synth::noteOn(uint8_t midiNote, uint8_t velocity)
+void Synth::noteOn(uint8_t midiNote, uint8_t velocity) noexcept
 {
-    auto& voice = m_voices[m_lastVoiceIndex++];
+    m_voices[m_lastVoiceIndex++].noteOn(midiNote, velocity);
     m_lastVoiceIndex %= 8;
-    voice.noteOn(midiNote, velocity);
 }
 
-void Synth::noteOff(uint8_t midiNote)
+void Synth::noteOff(uint8_t midiNote) noexcept
 {
     for (auto& voice : m_voices) {
         if (voice.getCurrentNote() == midiNote) {
