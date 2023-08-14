@@ -90,6 +90,21 @@ int audioCallback(
                             // scale q to be 1 - 10
                             s_synth->setQ((static_cast<float>(value / 127.0f) * 9.0f) + 1.0f);
                             break;
+                        case 26:
+                            // max of 5 seconds on timed ADSR params
+                            s_synth->setVcfAdsrParam<Adsr::Phase::Attack>(static_cast<float>(value) / 127.0f * 5.0f);
+                            break;
+                        case 27:
+                            s_synth->setVcfAdsrParam<Adsr::Phase::Decay>(static_cast<float>(value) / 127.0f * 5.0f);
+                            break;
+                        case 28:
+                            // scale sustain to be 0 - 1
+                            s_synth->setVcfAdsrParam<Adsr::Phase::Sustain>(static_cast<float>(value) / 127.0f);
+                            break;
+                        case 29:
+                            s_synth->setVcfAdsrParam<Adsr::Phase::Release>(static_cast<float>(value) / 127.0f * 5.0f);
+                            break;
+
                     }
                     break;
                 }
@@ -207,8 +222,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
 
     s_synth->setAdsrParam<Adsr::Phase::Attack>(0.0f);
     s_synth->setAdsrParam<Adsr::Phase::Decay>(0.1f);
-    s_synth->setAdsrParam<Adsr::Phase::Sustain>(0.3f);
+    s_synth->setAdsrParam<Adsr::Phase::Sustain>(1.0f);
     s_synth->setAdsrParam<Adsr::Phase::Release>(0.2f);
+
+    s_synth->setVcfAdsrParam<Adsr::Phase::Attack>(0.5f);
+    s_synth->setVcfAdsrParam<Adsr::Phase::Decay>(0.2f);
+    s_synth->setVcfAdsrParam<Adsr::Phase::Sustain>(0.3f);
+    s_synth->setVcfAdsrParam<Adsr::Phase::Release>(0.2f);
 
     if (dac.openStream(&streamParameters, nullptr, RTAUDIO_FLOAT32, sr, &bufferSize, &audioCallback)) {
         fmt::print(stderr, "{}\n", dac.getErrorText());

@@ -56,12 +56,15 @@ void SynthVoice::noteOn(uint8_t midiNote, uint8_t velocity) noexcept
     for (auto& osc : m_oscillators) {
         osc.setFrequency(mtof(midiNote));
     }
+    
     m_adsr.noteOn();
+    m_vcf.noteOn();
 }
 
 void SynthVoice::noteOff() noexcept
 {
     m_adsr.noteOff();
+    m_vcf.noteOff();
 }
 
 void SynthVoice::setCutoffFrequency(float cutoffFrequency)

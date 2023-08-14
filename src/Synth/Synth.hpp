@@ -48,6 +48,14 @@ public:
         }
     }
 
+    template<Adsr::Phase ParamType> requires (ParamType != Adsr::Phase::Idle)
+    void setVcfAdsrParam(float value) noexcept
+    {
+        for (auto& voice : m_voices) {
+            voice.setVcfAdsrParam<ParamType>(value);
+        }
+    }
+
     void setCutoffFrequency(float cutoffFrequency);
     void setQ(float q);
 

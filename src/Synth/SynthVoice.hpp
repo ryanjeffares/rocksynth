@@ -44,6 +44,12 @@ public:
         m_adsr.setParam<ParamType>(value);
     }
 
+    template<Adsr::Phase ParamType> requires (ParamType != Adsr::Phase::Idle)
+    void setVcfAdsrParam(float value) noexcept
+    {
+        m_vcf.setAdsrParam<ParamType>(value);
+    }
+
     void setCutoffFrequency(float cutoffFrequency);
     void setQ(float q);
 
