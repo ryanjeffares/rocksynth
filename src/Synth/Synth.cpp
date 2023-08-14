@@ -1,5 +1,20 @@
 #include "Synth.hpp"
 
+Synth::Synth(size_t numChannels)
+    : m_voices{
+        SynthVoice{numChannels},
+        SynthVoice{numChannels},
+        SynthVoice{numChannels},
+        SynthVoice{numChannels},
+        SynthVoice{numChannels},
+        SynthVoice{numChannels},
+        SynthVoice{numChannels},
+        SynthVoice{numChannels},
+    }
+{
+
+}
+
 void Synth::prepare(uint32_t sampleRate)
 {
     for (auto& voice : m_voices) {
@@ -7,7 +22,7 @@ void Synth::prepare(uint32_t sampleRate)
     }
 }
 
-void Synth::process(AudioBuffer &bufferToFill)
+void Synth::process(AudioBuffer& bufferToFill)
 {
     for (auto& voice : m_voices) {
         voice.process(bufferToFill);
@@ -26,6 +41,20 @@ void Synth::noteOff(uint8_t midiNote) noexcept
         if (voice.getCurrentNote() == midiNote) {
             voice.noteOff();
         }
+    }
+}
+
+void Synth::setCutoffFrequency(float cutoffFrequency)
+{
+    for (auto& voice : m_voices) {
+        voice.setCutoffFrequency(cutoffFrequency);
+    }
+}
+
+void Synth::setQ(float q)
+{
+    for (auto& voice : m_voices) {
+        voice.setQ(q);
     }
 }
 

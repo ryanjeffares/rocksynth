@@ -7,12 +7,13 @@
 
 #include <chrono>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <thread>
 #include <vector>
 
-static Synth s_synth;
-static RtMidiIn s_midiIn;
+static std::optional<Synth> s_synth;
+static std::optional<RtMidiIn> s_midiIn;
 
 static constexpr uint8_t s_noteOnStatusByte        = 0b10010000;
 static constexpr uint8_t s_noteOffStatusByte       = 0b10000000;
@@ -29,7 +30,7 @@ int audioCallback(
 {
     std::vector<uint8_t> midiMessage;
     while (true) {
-        [[maybe_unused]] double timeStamp = s_midiIn.getMessage(&midiMessage);
+        [[maybe_unused]] double timeStamp = s_midiIn->getMessage(&midiMessage);
         if (!midiMessage.empty()) {
 #ifdef ROCKSYNTH_DEBUG
             fmt::print("MIDI message with timestamp {}\n", timeStamp);
@@ -49,37 +50,45 @@ int audioCallback(
                     switch (controllerNumber) {
                         case 14:
                             // max of 5 seconds on timed ADSR params
-                            s_synth.setAdsrParam<Adsr::Phase::Attack>(static_cast<float>(value) / 127.0f * 5.0f);
+                            s_synth->setAdsrParam<Adsr::Phase::Attack>(static_cast<float>(value) / 127.0f * 5.0f);
                             break;
                         case 15:
-                            s_synth.setAdsrParam<Adsr::Phase::Decay>(static_cast<float>(value) / 127.0f * 5.0f);
+                            s_synth->setAdsrParam<Adsr::Phase::Decay>(static_cast<float>(value) / 127.0f * 5.0f);
                             break;
                         case 16:
                             // scale sustain to be 0 - 1
-                            s_synth.setAdsrParam<Adsr::Phase::Sustain>(static_cast<float>(value) / 127.0f);
+                            s_synth->setAdsrParam<Adsr::Phase::Sustain>(static_cast<float>(value) / 127.0f);
                             break;
                         case 17:
-                            s_synth.setAdsrParam<Adsr::Phase::Release>(static_cast<float>(value) / 127.0f * 5.0f);
+                            s_synth->setAdsrParam<Adsr::Phase::Release>(static_cast<float>(value) / 127.0f * 5.0f);
                             break;
                         case 18:
                             // scale this to be 0 - 3
-                            s_synth.setShape<0>(static_cast<Oscillator::Shape>(value / 42));
+                            s_synth->setShape<0>(static_cast<Oscillator::Shape>(value / 42));
                             break;
                         case 19:
-                            s_synth.setShape<1>(static_cast<Oscillator::Shape>(value / 42));
+                            s_synth->setShape<1>(static_cast<Oscillator::Shape>(value / 42));
                             break;
                         case 20:
                             // scale pulsewidth to be 0 - 1
-                            s_synth.setPulseWidth<0>(static_cast<float>(value) / 127.0f);
+                            s_synth->setPulseWidth<0>(static_cast<float>(value) / 127.0f);
                             break;
                         case 21:
-                            s_synth.setPulseWidth<1>(static_cast<float>(value) / 127.0f);
+                            s_synth->setPulseWidth<1>(static_cast<float>(value) / 127.0f);
                             break;
                         case 22:
-                            s_synth.setVolume<0>(static_cast<float>(value) / 127.0f);
+                            s_synth->setVolume<0>(static_cast<float>(value) / 127.0f);
                             break;
                         case 23:
-                            s_synth.setVolume<1>(static_cast<float>(value) / 127.0f);
+                            s_synth->setVolume<1>(static_cast<float>(value) / 127.0f);
+                            break;
+                        case 24:
+                            // scale cf to be 20 - 20000
+                            s_synth->setCutoffFrequency((static_cast<float>(value) / 127.0f * 19980.0f) + 20.0f);
+                            break;
+                        case 25:
+                            // scale q to be 1 - 10
+                            s_synth->setQ((static_cast<float>(value / 127.0f) * 9.0f) + 1.0f);
                             break;
                     }
                     break;
@@ -90,7 +99,7 @@ int audioCallback(
 #ifdef ROCKSYNTH_DEBUG
                     fmt::print("Note on: note number = {}, velocity = {}\n\n", note, velocity);
 #endif
-                    s_synth.noteOn(note, velocity);
+                    s_synth->noteOn(note, velocity);
                     break;
                 }
                 case s_noteOffStatusByte: {
@@ -98,7 +107,7 @@ int audioCallback(
 #ifdef ROCKSYNTH_DEBUG
                     fmt::print("Note off: note number = {}\n\n", note);
 #endif
-                    s_synth.noteOff(note);
+                    s_synth->noteOff(note);
                     break;
                 }
             }
@@ -115,7 +124,7 @@ int audioCallback(
     }
 
     AudioBuffer bufferToFill{2, static_cast<size_t>(bufferFrames)};
-    s_synth.process(bufferToFill);
+    s_synth->process(bufferToFill);
 
     for (size_t sample = 0; sample < bufferFrames; sample++) {
         for (size_t channel = 0; channel < 2; channel++) {
@@ -128,6 +137,20 @@ int audioCallback(
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
 {
+    try {
+        s_synth.emplace(2);
+    } catch (const std::exception& e) {
+        fmt::print(stderr, "Error constructing Synth: {}\n", e.what());
+        std::exit(1);
+    }
+
+    try {
+        s_midiIn.emplace();
+    } catch (const std::exception& e) {
+        fmt::print(stderr, "Error constructing RtMidiIn: {}\n", e.what());
+        std::exit(1);
+    }
+
     uint32_t midiDeviceNum = 0;
     if (argc > 1) {
         try {
@@ -137,15 +160,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
         }
     }
 
-    auto numMidiPorts = s_midiIn.getPortCount();
+    auto numMidiPorts = s_midiIn->getPortCount();
     if (numMidiPorts == 0) {
         fmt::print("No MIDI input devices found.\n\n");
     } else {
         for (uint32_t i = 0; i < numMidiPorts; i++) {
-            fmt::print("Found MIDI device #{}: {}\n", i, s_midiIn.getPortName(i));
+            fmt::print("Found MIDI device #{}: {}\n", i, s_midiIn->getPortName(i));
         }
-        s_midiIn.openPort(midiDeviceNum);
-        fmt::print("Using MIDI device: {}\n", s_midiIn.getPortName(midiDeviceNum));
+        s_midiIn->openPort(midiDeviceNum);
+        fmt::print("Using MIDI device: {}\n", s_midiIn->getPortName(midiDeviceNum));
     }
  
     RtAudio dac;
@@ -175,17 +198,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
     uint32_t sr = 44100;
     uint32_t bufferSize = 256; 
     
-    s_synth.prepare(sr);
+    s_synth->prepare(sr);
 
-    s_synth.setShape<0>(Oscillator::Shape::Saw);
-    s_synth.setShape<1>(Oscillator::Shape::Pulse);
+    s_synth->setShape<0>(Oscillator::Shape::Saw);
+    s_synth->setShape<1>(Oscillator::Shape::Pulse);
 
-    s_synth.setPulseWidth<1>(0.4f);
+    s_synth->setPulseWidth<1>(0.4f);
 
-    s_synth.setAdsrParam<Adsr::Phase::Attack>(0.0f);
-    s_synth.setAdsrParam<Adsr::Phase::Decay>(0.1f);
-    s_synth.setAdsrParam<Adsr::Phase::Sustain>(0.3f);
-    s_synth.setAdsrParam<Adsr::Phase::Release>(0.2f);
+    s_synth->setAdsrParam<Adsr::Phase::Attack>(0.0f);
+    s_synth->setAdsrParam<Adsr::Phase::Decay>(0.1f);
+    s_synth->setAdsrParam<Adsr::Phase::Sustain>(0.3f);
+    s_synth->setAdsrParam<Adsr::Phase::Release>(0.2f);
 
     if (dac.openStream(&streamParameters, nullptr, RTAUDIO_FLOAT32, sr, &bufferSize, &audioCallback)) {
         fmt::print(stderr, "{}\n", dac.getErrorText());

@@ -1,6 +1,6 @@
 #include "Oscillator.hpp"
 
-#include "fmt/core.h"
+#include <fmt/core.h>
 
 #include <cmath>
 #include <numbers>

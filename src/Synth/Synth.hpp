@@ -7,6 +7,7 @@
 class Synth : public AudioProcessor
 {
 public:
+    Synth(size_t numChannels);
     ~Synth() override = default;
 
     void prepare(uint32_t sampleRate) override;
@@ -46,6 +47,9 @@ public:
             voice.setAdsrParam<ParamType>(value);
         }
     }
+
+    void setCutoffFrequency(float cutoffFrequency);
+    void setQ(float q);
 
 private:
     size_t m_lastVoiceIndex{0};

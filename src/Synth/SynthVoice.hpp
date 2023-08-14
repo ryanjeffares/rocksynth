@@ -4,12 +4,14 @@
 #include "Adsr.hpp"
 #include "../Audio/AudioProcessor.hpp"
 #include "Oscillator.hpp"
+#include "Vcf.hpp"
 
 #include <array>
 
 class SynthVoice : public AudioProcessor
 {
 public:
+    SynthVoice(size_t numChannels);
     ~SynthVoice() override = default;
 
     void prepare(uint32_t sampleRate) override;
@@ -42,6 +44,9 @@ public:
         m_adsr.setParam<ParamType>(value);
     }
 
+    void setCutoffFrequency(float cutoffFrequency);
+    void setQ(float q);
+
     [[nodiscard]] uint8_t getCurrentNote() const noexcept;
 
 private:
@@ -49,6 +54,7 @@ private:
     float m_currentVelocity{0.0f};
 
     Adsr m_adsr;
+    Vcf m_vcf;
     std::array<Oscillator, 2> m_oscillators;
     std::array<float, 2> m_oscillatorVolumes{0.5f, 0.5f};
 };

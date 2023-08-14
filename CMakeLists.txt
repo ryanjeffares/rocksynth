@@ -20,9 +20,11 @@ add_executable(
     src/Audio/AudioBuffer.cpp
     src/main.cpp
     src/Synth/Adsr.cpp
+    src/Synth/BiquadFilter.cpp
     src/Synth/Oscillator.cpp
     src/Synth/Synth.cpp
     src/Synth/SynthVoice.cpp
+    src/Synth/Vcf.cpp
 )
 
 set_property(TARGET rocksynth PROPERTY CXX_STANDARD 20)
