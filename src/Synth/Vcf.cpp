@@ -18,7 +18,7 @@ void Vcf::process(AudioBuffer& bufferToFill)
 {
     for (size_t sample = 0; sample < bufferToFill.bufferSize(); sample++) {
         auto adsrLevel = m_adsr.getNextValue();
-        auto currentCutoff = std::min(m_cutoffFrequency * adsrLevel, 20.0f);
+        auto currentCutoff = std::max(m_cutoffFrequency * adsrLevel, 20.0f);
 
         for (size_t channel = 0; channel < bufferToFill.numChannels(); channel++) {
             m_filters[channel].setCutoffFrequency(currentCutoff);
