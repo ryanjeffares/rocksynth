@@ -39,6 +39,8 @@ public:
         }
     }
 
+    [[nodiscard]] Phase getCurrentPhase() const noexcept;
+
 private:
     Phase m_state{Phase::Idle};
     

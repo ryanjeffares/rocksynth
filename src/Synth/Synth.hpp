@@ -5,6 +5,8 @@
 #include "../Audio/Chorus.hpp"
 #include "SynthVoice.hpp"
 
+#include <queue>
+
 class Synth : public AudioProcessor
 {
 public:
@@ -67,7 +69,7 @@ public:
     }
 
 private:
-    size_t m_lastVoiceIndex{0};
+    std::queue<size_t> m_usedVoices;
     std::array<SynthVoice, 8> m_voices;
     Chorus m_chorus;
 };

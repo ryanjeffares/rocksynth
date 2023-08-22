@@ -81,3 +81,7 @@ void Adsr::noteOff() noexcept
     }
 }
 
+Adsr::Phase Adsr::getCurrentPhase() const noexcept
+{
+    return m_state;
+}

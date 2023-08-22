@@ -59,7 +59,6 @@ public:
 private:
     uint8_t m_currentNote{0};
     float m_currentVelocity{0.0f};
-    bool m_isNotePlaying{false};
 
     Adsr m_adsr;
     Vcf m_vcf;

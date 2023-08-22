@@ -1,5 +1,7 @@
 #include "Synth.hpp"
 
+#include <optional>
+
 Synth::Synth(size_t numChannels)
     : m_voices{
         SynthVoice(numChannels),
@@ -36,19 +38,17 @@ void Synth::process(AudioBuffer& bufferToFill)
 
 void Synth::noteOn(uint8_t midiNote, uint8_t velocity) noexcept
 {
-    bool voiceFound = false;
     for (size_t i = 0; i < m_voices.size(); i++) {
         if (!m_voices[i].getIsNotePlaying()) {
             m_voices[i].noteOn(midiNote, velocity);
-            m_lastVoiceIndex = i;
-            voiceFound = true;
-            break;
+            m_usedVoices.push(i);
+            return;
         }
     }
 
-    if (!voiceFound) {
-        m_voices[m_lastVoiceIndex].noteOn(midiNote, velocity);
-    }
+    auto oldestVoice = m_usedVoices.front();
+    m_usedVoices.pop();
+    m_voices[oldestVoice].noteOn(midiNote, velocity);
 }
 
 void Synth::noteOff(uint8_t midiNote) noexcept
