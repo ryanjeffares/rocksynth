@@ -17,7 +17,7 @@ public:
     DelayLine& operator=(DelayLine&& other) noexcept;
 
     void setMaxDelaySamples(size_t size) noexcept;
-    void setDelaySamples(size_t delay) noexcept;
+    void setDelaySamples(int64_t delay) noexcept;
 
     void setMaxDelaySeconds(float seconds) noexcept;
     void setDelaySeconds(float seconds) noexcept;
@@ -30,7 +30,7 @@ private:
     float* m_data{nullptr};
 
     float m_sampleRate{};
-    size_t m_delay{0};
+    int64_t m_delay{0};
     int64_t m_dataIndex{0};
 };
 

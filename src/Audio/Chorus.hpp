@@ -3,7 +3,6 @@
 
 #include "AudioProcessor.hpp"
 #include "DelayLine.hpp"
-#include "SmoothedValue.hpp"
 #include "../Synth/Oscillator.hpp"
 
 #include <vector>
@@ -26,7 +25,7 @@ public:
     };
 
     template<Param ParamType>
-    void setParam(float value)
+    void setParam(float value) noexcept
     {
         if constexpr (ParamType == Param::Depth) {
             m_depth = value;
@@ -43,14 +42,10 @@ private:
     std::vector<DelayLine> m_delayLines;
     std::vector<float> m_heldSamples;
     Oscillator m_lfo;
-    SmoothedValue m_smoothedLfoValue;
 
     float m_depth{0.5f};
     float m_feedback{0.5f};
     float m_dryWet{0.5f};
-
-    size_t m_lfoUpdateRate{100};
-    size_t m_lfoUpdateCounter{0};
 };
 
 #endif

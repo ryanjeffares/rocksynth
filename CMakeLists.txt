@@ -20,7 +20,6 @@ add_executable(
     src/Audio/AudioBuffer.cpp
     src/Audio/Chorus.cpp
     src/Audio/DelayLine.cpp
-    src/Audio/SmoothedValue.cpp
     src/main.cpp
     src/Synth/Adsr.cpp
     src/Synth/BiquadFilter.cpp

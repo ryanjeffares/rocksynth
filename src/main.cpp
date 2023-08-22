@@ -165,7 +165,7 @@ int audioCallback(
 int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
 {
     try {
-        s_synth.emplace(2);
+        s_synth = Synth(2);
     } catch (const std::exception& e) {
         fmt::print(stderr, "Error constructing Synth: {}\n", e.what());
         std::exit(1);
@@ -241,6 +241,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char* argv[])
     s_synth->setVcfAdsrParam<Adsr::Phase::Decay>(0.2f);
     s_synth->setVcfAdsrParam<Adsr::Phase::Sustain>(0.3f);
     s_synth->setVcfAdsrParam<Adsr::Phase::Release>(0.2f);
+
+    s_synth->setChorusParam<Chorus::Param::Depth>(0.1f);
+    s_synth->setChorusParam<Chorus::Param::Rate>(0.5f);
+    s_synth->setChorusParam<Chorus::Param::Feedback>(0.3f);
+    s_synth->setChorusParam<Chorus::Param::DryWet>(0.5f);
 
     if (dac.openStream(&streamParameters, nullptr, RTAUDIO_FLOAT32, sr, &bufferSize, &audioCallback)) {
         fmt::print(stderr, "{}\n", dac.getErrorText());

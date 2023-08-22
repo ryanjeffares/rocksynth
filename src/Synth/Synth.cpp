@@ -2,16 +2,16 @@
 
 Synth::Synth(size_t numChannels)
     : m_voices{
-        SynthVoice{numChannels},
-        SynthVoice{numChannels},
-        SynthVoice{numChannels},
-        SynthVoice{numChannels},
-        SynthVoice{numChannels},
-        SynthVoice{numChannels},
-        SynthVoice{numChannels},
-        SynthVoice{numChannels},
+        SynthVoice(numChannels),
+        SynthVoice(numChannels),
+        SynthVoice(numChannels),
+        SynthVoice(numChannels),
+        SynthVoice(numChannels),
+        SynthVoice(numChannels),
+        SynthVoice(numChannels),
+        SynthVoice(numChannels),
     }
-    , m_chorus{numChannels}
+    , m_chorus(numChannels)
 {
 
 }

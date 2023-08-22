@@ -16,11 +16,11 @@ public:
     void prepare(uint32_t sampleRate) override;
     void process(AudioBuffer& bufferToFill) override;
 
-    void setCutoffFrequency(float cutoffFrequency);
-    void setQ(float q);
+    void setCutoffFrequency(float cutoffFrequency) noexcept;
+    void setQ(float q) noexcept;
 
-    void noteOn();
-    void noteOff();
+    void noteOn() noexcept;
+    void noteOff() noexcept;
 
     template<Adsr::Phase ParamType> requires (ParamType != Adsr::Phase::Idle)
     void setAdsrParam(float value)

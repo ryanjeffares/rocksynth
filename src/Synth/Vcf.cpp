@@ -1,6 +1,6 @@
 #include "Vcf.hpp"
 
-Vcf::Vcf(size_t numChannels) : m_filters{numChannels}
+Vcf::Vcf(size_t numChannels) : m_filters(numChannels)
 {
 
 }
@@ -29,24 +29,24 @@ void Vcf::process(AudioBuffer& bufferToFill)
     }
 }
 
-void Vcf::setCutoffFrequency(float cutoffFrequency)
+void Vcf::setCutoffFrequency(float cutoffFrequency) noexcept
 {
     m_cutoffFrequency = cutoffFrequency;
 }
 
-void Vcf::setQ(float q)
+void Vcf::setQ(float q) noexcept
 {
     for (auto& filter : m_filters) {
         filter.setQ(q);
     }
 }
 
-void Vcf::noteOn()
+void Vcf::noteOn() noexcept
 {
     m_adsr.noteOn();
 }
 
-void Vcf::noteOff()
+void Vcf::noteOff() noexcept
 {
     m_adsr.noteOff();
 }

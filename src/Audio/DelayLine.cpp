@@ -1,5 +1,7 @@
 #include "DelayLine.hpp"
 
+#include <fmt/core.h>
+
 #include <cmath>
 #include <cstring>
 
@@ -56,12 +58,9 @@ void DelayLine::setMaxDelaySamples(size_t size) noexcept
     std::memset(m_data, 0, sizeof(float) * m_maxSize);
 }
 
-void DelayLine::setDelaySamples(size_t delay) noexcept
+void DelayLine::setDelaySamples(int64_t delay) noexcept
 {
     m_delay = std::fmin(delay, m_maxSize);
-    if (m_dataIndex >= static_cast<int64_t>(delay)) {
-        m_dataIndex = delay - 1;
-    }
 }
 
 void DelayLine::setMaxDelaySeconds(float seconds) noexcept
@@ -71,7 +70,7 @@ void DelayLine::setMaxDelaySeconds(float seconds) noexcept
 
 void DelayLine::setDelaySeconds(float seconds) noexcept
 {
-    setDelaySamples(static_cast<size_t>(seconds * m_sampleRate));
+    setDelaySamples(static_cast<int64_t>(seconds * m_sampleRate));
 }
 
 void DelayLine::prepare(uint32_t sampleRate) noexcept
@@ -85,12 +84,18 @@ float DelayLine::getNextSample(float inputSample) noexcept
         return 0.0f;
     }
 
-    auto read = m_data[m_dataIndex];
     m_data[m_dataIndex] = inputSample;
-    m_dataIndex++;
-    if (m_dataIndex >= static_cast<int64_t>(m_delay)) {
+    auto readIndex = m_dataIndex - m_delay;
+    // wrap around
+    if (readIndex < 0) {
+        auto spill = m_delay - m_dataIndex;
+        readIndex = m_maxSize - 1 - spill;
+    }
+
+    if (static_cast<size_t>(++m_dataIndex) == m_maxSize) {
         m_dataIndex = 0;
     }
 
-    return read;
+    return m_data[readIndex];
 }
+

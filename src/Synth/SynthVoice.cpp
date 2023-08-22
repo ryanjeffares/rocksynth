@@ -7,7 +7,7 @@ static float mtof(uint8_t midiNote)
     return std::pow(2.0f, (static_cast<float>(midiNote) - 69.0f) / 12.0f) * 440.0f;
 }
 
-SynthVoice::SynthVoice(size_t numChannels) : m_vcf{numChannels}
+SynthVoice::SynthVoice(size_t numChannels) : m_vcf(numChannels)
 {
 
 }
