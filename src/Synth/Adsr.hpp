@@ -26,16 +26,16 @@ public:
     void setParam(float value) noexcept
     {
         if constexpr (ParamType == Phase::Attack) {
-            m_attackTime = std::max(value, 0.001f);
+            m_attackTime = std::fmax(value, 0.001f);
         } else if constexpr (ParamType == Phase::Decay) {
-            m_decayTime = std::max(value, 0.001f);
+            m_decayTime = std::fmax(value, 0.001f);
         } else if constexpr (ParamType == Phase::Sustain) {
             if (m_state == Phase::Sustain) {
                 m_maxLevel = value;
             }
             m_sustainLevel = value;
         } else if constexpr (ParamType == Phase::Release) {
-            m_releaseTime = std::max(value, 0.001f);
+            m_releaseTime = std::fmax(value, 0.001f);
         }
     }
 
