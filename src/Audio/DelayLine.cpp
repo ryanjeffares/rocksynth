@@ -58,7 +58,7 @@ void DelayLine::setMaxDelaySamples(size_t size) noexcept
 
 void DelayLine::setDelaySamples(size_t delay) noexcept
 {
-    m_delay = std::min(delay, m_maxSize);
+    m_delay = std::fmin(delay, m_maxSize);
     if (m_dataIndex >= static_cast<int64_t>(delay)) {
         m_dataIndex = delay - 1;
     }
