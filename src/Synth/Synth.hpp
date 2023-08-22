@@ -2,6 +2,7 @@
 #define SYNTH_HPP
 
 #include "../Audio/AudioProcessor.hpp"
+#include "../Audio/Chorus.hpp"
 #include "SynthVoice.hpp"
 
 class Synth : public AudioProcessor
@@ -59,9 +60,16 @@ public:
     void setCutoffFrequency(float cutoffFrequency);
     void setQ(float q);
 
+    template<Chorus::Param ParamType>
+    void setChorusParam(float value)
+    {
+        m_chorus.setParam<ParamType>(value);
+    }
+
 private:
     size_t m_lastVoiceIndex{0};
     std::array<SynthVoice, 8> m_voices;
+    Chorus m_chorus;
 };
 
 #endif

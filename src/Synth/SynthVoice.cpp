@@ -52,6 +52,7 @@ void SynthVoice::noteOn(uint8_t midiNote, uint8_t velocity) noexcept
 {
     m_currentNote = midiNote;
     m_currentVelocity = static_cast<float>(velocity) / 127.0f;
+    m_isNotePlaying = true;
 
     for (auto& osc : m_oscillators) {
         osc.setFrequency(mtof(midiNote));
@@ -63,6 +64,7 @@ void SynthVoice::noteOn(uint8_t midiNote, uint8_t velocity) noexcept
 
 void SynthVoice::noteOff() noexcept
 {
+    m_isNotePlaying = false;
     m_adsr.noteOff();
     m_vcf.noteOff();
 }
@@ -82,3 +84,7 @@ uint8_t SynthVoice::getCurrentNote() const noexcept
     return m_currentNote;
 }
 
+bool SynthVoice::getIsNotePlaying() const noexcept
+{
+    return m_isNotePlaying;
+}

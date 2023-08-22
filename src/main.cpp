@@ -104,7 +104,19 @@ int audioCallback(
                         case 29:
                             s_synth->setVcfAdsrParam<Adsr::Phase::Release>(static_cast<float>(value) / 127.0f * 5.0f);
                             break;
-
+                        case 102:
+                            s_synth->setChorusParam<Chorus::Param::Depth>(static_cast<float>(value) / 127.0f);
+                            break;
+                        case 103:
+                            // scale this to be 0.1 - 20
+                            s_synth->setChorusParam<Chorus::Param::Rate>((static_cast<float>(value) / 127.0f * 19.9f) + 0.1f);
+                            break;
+                        case 104:
+                            s_synth->setChorusParam<Chorus::Param::Feedback>(static_cast<float>(value) / 127.0f);
+                            break;
+                        case 105:
+                            s_synth->setChorusParam<Chorus::Param::DryWet>(static_cast<float>(value) / 127.0f);
+                            break;
                     }
                     break;
                 }
