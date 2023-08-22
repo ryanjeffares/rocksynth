@@ -1,5 +1,8 @@
 #include "SmoothedValue.hpp"
 
+#include <cmath>
+#include <limits>
+
 void SmoothedValue::prepare(uint32_t sampleRate) noexcept
 {
     m_sampleRate = sampleRate;
@@ -29,6 +32,10 @@ void SmoothedValue::setSmoothingTime(float seconds) noexcept
 
 void SmoothedValue::setTargetValue(float value) noexcept
 {
+    if (std::abs(value - m_target) <= std::numeric_limits<float>::epsilon()) {
+        return;
+    }
+
     m_target = value;
     if (m_stepsToTarget == 0) {
         m_current = value;

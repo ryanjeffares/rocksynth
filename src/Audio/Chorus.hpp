@@ -48,6 +48,9 @@ private:
     float m_depth{0.5f};
     float m_feedback{0.5f};
     float m_dryWet{0.5f};
+
+    size_t m_lfoUpdateRate{100};
+    size_t m_lfoUpdateCounter{0};
 };
 
 #endif
