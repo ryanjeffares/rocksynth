@@ -31,7 +31,7 @@ private:
 
     float m_sampleRate{};
     int64_t m_delay{0};
-    int64_t m_dataIndex{0};
+    int64_t m_recordIndex{0};
 };
 
 #endif

@@ -13,6 +13,9 @@ DelayLine::~DelayLine()
 DelayLine::DelayLine(const DelayLine& other)
     : m_maxSize{other.m_maxSize}
     , m_data{new float[m_maxSize]}
+    , m_sampleRate{other.m_sampleRate}
+    , m_delay{other.m_delay}
+    , m_recordIndex{other.m_recordIndex}
 {
     std::memcpy(m_data, other.m_data, sizeof(float) * m_maxSize);
 }
@@ -20,6 +23,9 @@ DelayLine::DelayLine(const DelayLine& other)
 DelayLine::DelayLine(DelayLine&& other) noexcept
     : m_maxSize{other.m_maxSize}
     , m_data{other.m_data}
+    , m_sampleRate{other.m_sampleRate}
+    , m_delay{other.m_delay}
+    , m_recordIndex{other.m_recordIndex}
 {
     other.m_maxSize = 0;
     other.m_data = nullptr;
@@ -31,6 +37,10 @@ DelayLine& DelayLine::operator=(const DelayLine& other)
         delete[] m_data;
         m_maxSize = other.m_maxSize;
         m_data = new float[m_maxSize];
+        m_sampleRate = other.m_sampleRate;
+        m_delay = other.m_delay;
+        m_recordIndex = other.m_recordIndex;
+
         std::memcpy(m_data, other.m_data, sizeof(float) * m_maxSize);
     }
 
@@ -43,6 +53,10 @@ DelayLine& DelayLine::operator=(DelayLine&& other) noexcept
         delete[] m_data;
         m_maxSize = other.m_maxSize;
         m_data = other.m_data;
+        m_sampleRate = other.m_sampleRate;
+        m_delay = other.m_delay;
+        m_recordIndex = other.m_recordIndex;
+
         other.m_maxSize = 0;
         other.m_data = nullptr;
     }
@@ -84,16 +98,16 @@ float DelayLine::getNextSample(float inputSample) noexcept
         return 0.0f;
     }
 
-    m_data[m_dataIndex] = inputSample;
-    auto readIndex = m_dataIndex - m_delay;
+    m_data[m_recordIndex] = inputSample;
+    auto readIndex = m_recordIndex - m_delay;
     // wrap around
     if (readIndex < 0) {
-        auto spill = m_delay - m_dataIndex;
+        auto spill = m_delay - m_recordIndex;
         readIndex = m_maxSize - 1 - spill;
     }
 
-    if (static_cast<size_t>(++m_dataIndex) == m_maxSize) {
-        m_dataIndex = 0;
+    if (static_cast<size_t>(++m_recordIndex) == m_maxSize) {
+        m_recordIndex = 0;
     }
 
     return m_data[readIndex];
